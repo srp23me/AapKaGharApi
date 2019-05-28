@@ -9,7 +9,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootApplication(scanBasePackages = "com")
-//@EnableJpaRepositories(basePackages= {"com"})
 @EntityScan(basePackages= {"com"})
 public class DbconnectApplication {
 

@@ -1,41 +1,42 @@
 package com.aap.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aap.bean.CustomerDetails;
-import com.aap.bean.PropertyDetails;
-import com.aap.bean.Registration_Bean;
-import com.aap.bean.UserBean;
+import com.aap.exception.ResourceNotFoundException;
+import com.aap.model.CustomerDetails;
+import com.aap.model.PropertyDetails;
+import com.aap.model.UserBean;
 import com.aap.repository.CustomerDetailsRepo;
 import com.aap.repository.PropertyDetailsRepo;
 import com.aap.repository.UserRepo;
+import com.aap.service.CustomerService;
 
 @RestController
 @EnableJpaRepositories(basePackages = { "com" })
 @EntityScan(basePackages = { "com" })
+@CrossOrigin("*")
 public class AapController {
-
+	
+	@Autowired
+	CustomerService customerService;
+	
 	@Autowired
 	UserRepo userRepo;
-
-	@Autowired
-	CustomerDetailsRepo customerDetailsRepo;
-
-	@Autowired
-	PropertyDetailsRepo propertyDetailsRepo;
 
 	/*@PostMapping(value = "/Register", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Registration_Bean validateRegister(@Valid @RequestBody Registration_Bean input) {
@@ -44,42 +45,68 @@ public class AapController {
 
 	}
 */
-	@PostMapping(value = "/newRegister")
-	public UserBean insertRegister(@Valid @RequestBody UserBean input) {
-		userRepo.save(input);
-		return input;
+	@PostMapping(value = "/validateUser")
+	public String validateUser(@Valid @RequestBody String input) throws ResourceNotFoundException {
+		String result = customerService.validateUser(input);
+		return result;
 
 	}
 
-	@PostMapping(value = "/CustomerDetails")
-	public CustomerDetails insertCustomerDetails(@Valid @RequestBody CustomerDetails input) {
+	@PostMapping(value = "/Customer")
+	public void insertRegister(@Valid @RequestBody UserBean input) throws ResourceNotFoundException {
+		String result = customerService.insertRegister(input);
 		
-		customerDetailsRepo.save(input);
-		return input;
+		//return result;
+	}
+
+	@PostMapping(value = "/Customer/Details")
+	public String insertCustomerDetails(@Valid @RequestBody CustomerDetails input)  throws ResourceNotFoundException {
+		String result = customerService.insertCustomerDetails(input);
+		return result;
+		
 
 	}
 
-	@PostMapping(value = "/PropertyDetails")
-	public PropertyDetails insertPropertyDetails(@Valid @RequestBody PropertyDetails input) {
+	@PostMapping(value = "/Property/Details")
+	public String insertPropertyDetails(@Valid @RequestBody PropertyDetails input) throws ResourceNotFoundException {
 		
-		Optional<CustomerDetails> customerDetails = customerDetailsRepo.findByCustomerNo(input.getCustomerDetails().getCustomerNo());
-		CustomerDetails cd = customerDetails.isPresent()?customerDetails.get():null;
-		input.setCustomerDetails(cd);
-		propertyDetailsRepo.save(input);
-		return input;
-
+		String result = customerService.insertPropertyDetails(input);
+		return result;
 	}
 	
-
-
-	
-	@GetMapping(value = "/getCustomerDetails")
-	public List<CustomerDetails> getCustomerDetails() {
+	@GetMapping(value = "/Customer/Requests")
+	public List<CustomerDetails> getCustomerDetails() throws ResourceNotFoundException {
 		
-		List<CustomerDetails> customerDetails = customerDetailsRepo.findByPropertyDetails_Status(4);
+		List<CustomerDetails> customerDetails = customerService.getCustomerDetails(4);
 		return customerDetails;
-
 	}
 	
+	
+	
+	@GetMapping(value = "/login",produces=MediaType.APPLICATION_JSON_VALUE)
+	public UserBean getLogin(@NotNull(message="UserId is Mandatory") @RequestParam(required=false) String userid,@NotNull(message="Password is mandatory") @RequestParam(required=false) String password) {
+	//  Optional<User> user = userReop.findByUserid(userid);
+	 System.out.println("************* user id ::: "+userid);
+	 System.out.println("************* password ::: "+password);
+	 Optional<UserBean> user = userRepo.findByUserNameAndPassword(userid,password);
+	 UserBean userdata = user.isPresent()?user.get():null;
+	 
+	/* if(!user.isPresent()) {
+	  throw new SampleRestControllerException("User Not Found...");
+	 }
 
+	 System.out.println("response ::::: "+userdata.getUserid()+":::::::"+userdata.getPassword());
+	 */
+	 return userdata;
+	}
+
+	
+	
+	@PostMapping(value = "/Customer/Details1")
+	public ResponseEntity<CustomerDetails> insertCustomerDetails1(@Valid @RequestBody CustomerDetails input)  throws ResourceNotFoundException {
+		String result = customerService.insertCustomerDetails(input);
+		return ResponseEntity.ok().body(input);
+		
+
+	}
 }

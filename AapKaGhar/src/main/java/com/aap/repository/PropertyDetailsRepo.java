@@ -6,8 +6,8 @@ import java.util.Optional;
 	import org.springframework.data.repository.CrudRepository;
 	import org.springframework.stereotype.Repository;
 
-import com.aap.bean.CustomerDetails;
-import com.aap.bean.PropertyDetails;
+import com.aap.model.CustomerDetails;
+import com.aap.model.PropertyDetails;
 
 @Repository
 	public interface PropertyDetailsRepo extends CrudRepository<PropertyDetails, Long> {

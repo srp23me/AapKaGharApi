@@ -1,17 +1,13 @@
 package com.aap.repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.aap.bean.CustomerDetails;
-import com.aap.bean.PropertyDetails;
-import com.aap.bean.UserBean;
+import com.aap.model.CustomerDetails;
 
 @Repository
 public interface CustomerDetailsRepo extends JpaRepository<CustomerDetails, Long> {
